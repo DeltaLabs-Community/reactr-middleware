@@ -1,16 +1,14 @@
-import React from 'react'
-import { useLoaderData } from 'react-router'
-import { createLoaderFromRegistry } from '../../../../../src'
-import { ProductPageMiddleware } from './products.middleware.config'
+import React from 'react';
+import { useLoaderData } from 'react-router';
+import { createLoaderFromRegistry } from '../../../../../src';
+import { ProductPageMiddleware } from './products.middleware.config';
 
-export const loader = createLoaderFromRegistry(ProductPageMiddleware.ProductPage)
+export const loader = createLoaderFromRegistry(ProductPageMiddleware.ProductPage);
 
 const Product = () => {
-  const data = useLoaderData()
-  console.log(data)
-  return (
-    <div>Product</div>
-  )
-}
+  const data = useLoaderData();
+  console.log(data);
+  return <div>Product</div>;
+};
 
-export default Product
+export default Product;

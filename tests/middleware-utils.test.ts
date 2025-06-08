@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { 
-  createLoader, 
-  createLoaderFromRegistry, 
+import {
+  createLoader,
+  createLoaderFromRegistry,
   registerMiddleware,
   commonMiddlewares,
-  type Middleware, 
-  type MiddlewareContext 
+  type Middleware,
+  type MiddlewareContext,
 } from '../src/middleware-utils';
 import { redirect } from 'react-router';
 
@@ -38,7 +38,7 @@ describe('Middleware Router', () => {
     mockLoaderArgs = {
       request: mockRequest,
       params: { id: '123' },
-      context: {}
+      context: {},
     };
 
     // Clear registry before each test
@@ -48,12 +48,12 @@ describe('Middleware Router', () => {
   describe('Sequential Middleware Execution', () => {
     it('should execute middlewares in sequence', async () => {
       const executionOrder: number[] = [];
-      
+
       const middleware1: Middleware = async () => {
         executionOrder.push(1);
         return { continue: true, data: { step1: 'completed' } };
       };
-      
+
       const middleware2: Middleware = async () => {
         executionOrder.push(2);
         return { continue: true, data: { step2: 'completed' } };
@@ -65,18 +65,18 @@ describe('Middleware Router', () => {
       expect(executionOrder).toEqual([1, 2]);
       expect((result as any).middlewareData).toEqual({
         step1: 'completed',
-        step2: 'completed'
+        step2: 'completed',
       });
     });
 
     it('should stop execution when middleware returns continue: false', async () => {
       const executionOrder: number[] = [];
-      
+
       const middleware1: Middleware = async () => {
         executionOrder.push(1);
         return { continue: false, data: { error: 'failed' } };
       };
-      
+
       const middleware2: Middleware = async () => {
         executionOrder.push(2);
         return { continue: true, data: { step2: 'completed' } };
@@ -93,13 +93,13 @@ describe('Middleware Router', () => {
   describe('Parallel Middleware Execution', () => {
     it('should execute middlewares in parallel', async () => {
       const startTimes: number[] = [];
-      
+
       const middleware1: Middleware = async () => {
         startTimes.push(Date.now());
         await new Promise(resolve => setTimeout(resolve, 50));
         return { continue: true, data: { step1: 'completed' } };
       };
-      
+
       const middleware2: Middleware = async () => {
         startTimes.push(Date.now());
         await new Promise(resolve => setTimeout(resolve, 50));
@@ -115,7 +115,7 @@ describe('Middleware Router', () => {
       expect(totalTime).toBeLessThan(80); // Less than sequential (100ms)
       expect((result as any).middlewareData).toEqual({
         step1: 'completed',
-        step2: 'completed'
+        step2: 'completed',
       });
     });
 
@@ -123,7 +123,7 @@ describe('Middleware Router', () => {
       const middleware1: Middleware = async () => {
         return { continue: true, data: { step1: 'completed' } };
       };
-      
+
       const middleware2: Middleware = async () => {
         return { continue: false, data: { error: 'failed' } };
       };
@@ -143,9 +143,9 @@ describe('Middleware Router', () => {
 
     it('should register and retrieve middleware groups', () => {
       const testMiddleware: Middleware = async () => ({ continue: true });
-      
+
       registerMiddleware('test-group', [testMiddleware]);
-      
+
       const loader = createLoaderFromRegistry('test-group');
       expect(loader).toBeDefined();
     });
@@ -157,14 +157,14 @@ describe('Middleware Router', () => {
     });
 
     it('should support multiple middleware groups', async () => {
-      const middleware1: Middleware = async () => ({ 
-        continue: true, 
-        data: { from: 'group1' } 
+      const middleware1: Middleware = async () => ({
+        continue: true,
+        data: { from: 'group1' },
       });
-      
-      const middleware2: Middleware = async () => ({ 
-        continue: true, 
-        data: { from: 'group2' } 
+
+      const middleware2: Middleware = async () => ({
+        continue: true,
+        data: { from: 'group2' },
       });
 
       registerMiddleware('group1', [middleware1]);
@@ -181,13 +181,13 @@ describe('Middleware Router', () => {
     describe('requireAuth', () => {
       it('should pass with valid Authorization header', async () => {
         const authRequest = new Request('http://localhost:3000/test', {
-          headers: { 'Authorization': 'Bearer valid-token' }
+          headers: { Authorization: 'Bearer valid-token' },
         });
-        
+
         const authMiddleware = commonMiddlewares.requireAuth('/login');
         const result = await authMiddleware({
           ...mockContext,
-          request: authRequest
+          request: authRequest,
         });
 
         expect(result.continue).toBe(true);
@@ -206,9 +206,9 @@ describe('Middleware Router', () => {
       it('should add CORS headers', async () => {
         const corsMiddleware = commonMiddlewares.cors({
           origins: ['http://localhost:3000'],
-          methods: ['GET', 'POST']
+          methods: ['GET', 'POST'],
         });
-        
+
         const result = await corsMiddleware(mockContext);
 
         expect(result.continue).toBe(true);
@@ -223,7 +223,7 @@ describe('Middleware Router', () => {
     describe('rateLimit', () => {
       it('should allow requests within limit', async () => {
         const rateLimitMiddleware = commonMiddlewares.rateLimit(2, 60000);
-        
+
         const result1 = await rateLimitMiddleware(mockContext);
         const result2 = await rateLimitMiddleware(mockContext);
 
@@ -233,7 +233,7 @@ describe('Middleware Router', () => {
 
       it('should block requests exceeding limit', async () => {
         const rateLimitMiddleware = commonMiddlewares.rateLimit(1, 60000);
-        
+
         await rateLimitMiddleware(mockContext);
         const result = await rateLimitMiddleware(mockContext);
 
@@ -245,15 +245,13 @@ describe('Middleware Router', () => {
     describe('logger', () => {
       it('should log request information', async () => {
         const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-        
+
         const loggerMiddleware = commonMiddlewares.logger();
         const result = await loggerMiddleware(mockContext);
 
         expect(result.continue).toBe(true);
-        expect(consoleSpy).toHaveBeenCalledWith(
-          expect.stringMatching(/GET \/test/)
-        );
-        
+        expect(consoleSpy).toHaveBeenCalledWith(expect.stringMatching(/GET \/test/));
+
         consoleSpy.mockRestore();
       });
     });
@@ -266,7 +264,7 @@ describe('Middleware Router', () => {
       };
 
       const loader = createLoader([errorMiddleware], { rejectOnError: true });
-      
+
       await expect(async () => {
         await loader(mockLoaderArgs as any);
       }).rejects.toThrow('Middleware failed');
@@ -276,7 +274,7 @@ describe('Middleware Router', () => {
       const errorMiddleware: Middleware = async () => {
         return {
           continue: false,
-          redirect: '/'
+          redirect: '/',
         };
       };
 
@@ -290,12 +288,12 @@ describe('Middleware Router', () => {
     it('should accumulate data from multiple middlewares', async () => {
       const middleware1: Middleware = async () => ({
         continue: true,
-        data: { user: 'john', role: 'admin' }
+        data: { user: 'john', role: 'admin' },
       });
 
       const middleware2: Middleware = async () => ({
         continue: true,
-        data: { timestamp: '2024-01-01', session: 'abc123' }
+        data: { timestamp: '2024-01-01', session: 'abc123' },
       });
 
       const loader = createLoader([middleware1, middleware2]);
@@ -305,19 +303,19 @@ describe('Middleware Router', () => {
         user: 'john',
         role: 'admin',
         timestamp: '2024-01-01',
-        session: 'abc123'
+        session: 'abc123',
       });
     });
 
     it('should accumulate headers from multiple middlewares', async () => {
       const middleware1: Middleware = async () => ({
         continue: true,
-        headers: { 'X-Custom-1': 'value1' }
+        headers: { 'X-Custom-1': 'value1' },
       });
 
       const middleware2: Middleware = async () => ({
         continue: true,
-        headers: { 'X-Custom-2': 'value2' }
+        headers: { 'X-Custom-2': 'value2' },
       });
 
       const loader = createLoader([middleware1, middleware2]);
@@ -325,7 +323,7 @@ describe('Middleware Router', () => {
 
       expect((result as any).headers).toEqual({
         'X-Custom-1': 'value1',
-        'X-Custom-2': 'value2'
+        'X-Custom-2': 'value2',
       });
     });
   });

@@ -13,6 +13,4 @@ export interface MiddlewareResponse {
   continue: boolean;
 }
 
-export type Middleware = (
-  context: MiddlewareContext
-) => Promise<MiddlewareResponse> | MiddlewareResponse;
+export type Middleware = (context: MiddlewareContext) => Promise<MiddlewareResponse> | MiddlewareResponse;

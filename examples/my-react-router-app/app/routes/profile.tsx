@@ -1,12 +1,13 @@
-import { createLoaderFromRegistry } from "../../../../src";
-import { useLoaderData } from "react-router";
-import { MiddlewareGroup } from "~/middleware.config";
-import type { Route } from "./+types/profile";
-
-
+import { createLoaderFromRegistry } from '../../../../src';
+import { useLoaderData } from 'react-router';
+import { MiddlewareGroup } from '~/middleware.config';
+import type { Route } from './+types/profile';
 
 // Use centralized middleware configuration
-export const loader = createLoaderFromRegistry(MiddlewareGroup.ProfilePageParallel, { parallel: true, rejectOnError: true });
+export const loader = createLoaderFromRegistry(MiddlewareGroup.ProfilePageParallel, {
+  parallel: true,
+  rejectOnError: true,
+});
 
 // The component
 export default function Profile() {

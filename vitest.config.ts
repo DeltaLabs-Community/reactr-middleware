@@ -5,4 +5,4 @@ export default defineConfig({
     environment: 'node',
     globals: true,
   },
-}); 
+});

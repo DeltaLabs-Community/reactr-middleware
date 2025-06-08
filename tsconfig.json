@@ -9,11 +9,5 @@
     "rootDir": "./src",
     "declaration": true
   },
-  "exclude": [
-    "examples/**/*",
-    "node_modules",
-    "tests/**/*",
-    "dist",
-    "vitest.config.ts"
-  ],
+  "exclude": ["examples/**/*", "node_modules", "tests/**/*", "dist", "vitest.config.ts"]
 }
