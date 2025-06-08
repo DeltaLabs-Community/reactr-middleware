@@ -282,7 +282,7 @@ class MiddlewareExecutor {
     MiddlewareRegistry.register(name, middlewares);
   }
 
-  export function createLoaderFromRegistry(name: string | string[], options?: { parallel?: boolean, rejectOnError?: boolean, redirect?: string }) {
+  export function createLoaderFromRegistry(name: string | string[], options?: { parallel?: boolean, rejectOnError?: boolean, redirect?: string}) {
     return MiddlewareRegistry.createLoader(name, options?.parallel, options?.rejectOnError, options?.redirect);
   }
 

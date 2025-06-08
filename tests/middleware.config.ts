@@ -1,12 +1,12 @@
-import { registerMiddleware, commonMiddlewares } from "../../../src";
-import "./routes/products/products.middleware.config";
+import { registerMiddleware, commonMiddlewares } from "../src/middleware-utils";
+
 export enum MiddlewareGroup {
   Public = "public",
   Protected = "protected",
   Admin = "admin",
   Api = "api",
   ProfilePage = "profilePage",
-  ProfilePageParallel = "profilePageParallel",
+  ProfilePageParallel = "profilePageParallel"
 }
 
 // Register middleware groups centrally

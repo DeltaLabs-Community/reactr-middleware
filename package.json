@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest",
-    "test:watch": "vitest --watch"
+    "test:watch": "vitest --watch",
+    "example": "cd examples/my-react-router-app && npm run dev"
   },
   "keywords": [],
   "author": "",

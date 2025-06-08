@@ -19,12 +19,17 @@ type Pages = {
   "/profile": {
     params: {};
   };
+  "/product/:id": {
+    params: {
+      "id": string;
+    };
+  };
 };
 
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/dashboard" | "/profile";
+    page: "/" | "/dashboard" | "/profile" | "/product/:id";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -37,5 +42,9 @@ type RouteFiles = {
   "routes/profile.tsx": {
     id: "routes/profile";
     page: "/profile";
+  };
+  "routes/products/product.tsx": {
+    id: "routes/products/product";
+    page: "/product/:id";
   };
 };
