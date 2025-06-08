@@ -4,6 +4,7 @@
   "description": "Middleware for React Router",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "example": "cd examples/my-react-router-app && npm run dev"
