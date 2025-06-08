@@ -15,7 +15,7 @@ Thank you for your interest in contributing to Reactr Middleware! We welcome con
 
 1. **Fork and clone the repository**:
 ```bash
-git clone https://github.com/your-username/reactr-middleware.git
+git clone https://github.com/DeltaLabs-Community/reactr-middleware.git
 cd reactr-middleware
 ```
 
