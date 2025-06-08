@@ -7,7 +7,10 @@
     "build": "tsc",
     "test": "vitest",
     "test:watch": "vitest --watch",
-    "example": "cd examples/my-react-router-app && npm run dev"
+    "example": "cd examples/my-react-router-app && npm run dev",
+    "docs:dev": "vitepress dev site",
+    "docs:build": "vitepress build site",
+    "docs:preview": "vitepress preview site"
   },
   "keywords": [],
   "author": "",
@@ -18,6 +21,7 @@
     "@types/react": "^19.1.6",
     "prettier": "3.5.3",
     "typescript": "^5.8.3",
+    "vitepress": "^1.6.3",
     "vitest": "^1.0.0"
   },
   "dependencies": {
