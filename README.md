@@ -173,7 +173,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/reactr-middleware.git
+git clone https://github.com/DeltaLabs-Community/reactr-middleware.git
 cd reactr-middleware
 
 # Install dependencies
@@ -188,7 +188,7 @@ npm run build
 
 ## 📄 License
 
-MIT © [Your Name](https://github.com/your-username)
+MIT © [Delta Labs](https://github.com/DeltaLabs-Community)
 
 ## 🙏 Acknowledgments
 
@@ -198,4 +198,4 @@ MIT © [Your Name](https://github.com/your-username)
 
 ---
 
-**[⭐ Star this project](https://github.com/your-username/reactr-middleware)** if you find it useful!
+**[⭐ Star this project](https://github.com/DeltaLabs-Community/reactr-middleware)** if you find it useful!
