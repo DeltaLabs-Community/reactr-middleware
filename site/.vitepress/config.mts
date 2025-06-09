@@ -81,7 +81,8 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Docs', items:[
-        { text: 'v-1.0.0', link: '/docs/v-1.0.0/getting-started' },
+        { text: 'v-1.0.2 - Latest', link: '/docs/v-1.0.2/getting-started' },
+        { text: 'v-1.0.0 (Deprecated)', link: '/docs/v-1.0.0/getting-started' },
       ] }
     ],
 
@@ -99,6 +100,21 @@ export default defineConfig({
           items:[
             { text: 'Middleware', link: '/docs/v-1.0.0/middleware' },
             { text: 'Registry', link: '/docs/v-1.0.0/registry' },
+          ]
+        }
+      ],
+      '/docs/v-1.0.2/': [
+        {
+          text:"Getting Started",
+          items:[
+            { text: 'Quick Start', link: '/docs/v-1.0.2/getting-started' },
+          ]
+        },
+        {
+          text:"Core Concepts",
+          items:[
+            { text: 'Middleware', link: '/docs/v-1.0.2/middleware' },
+            { text: 'Registry', link: '/docs/v-1.0.2/registry' },
           ]
         }
       ]

@@ -4,11 +4,6 @@ title: Getting Started
 
 # Getting Started
 
-::: danger
-This version is deprecated and have a build bug. Please use new versions.
-:::
-
-
 ## Installation
 
 Install Reactr Middleware using your preferred package manager:
@@ -26,7 +21,9 @@ yarn add reactr-middleware
 ```bash [pnpm]
 pnpm add reactr-middleware
 ```
+
 :::
+
 ## Quick Start
 
 ### Basic Setup
