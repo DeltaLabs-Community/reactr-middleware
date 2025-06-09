@@ -57,6 +57,6 @@ registerMiddleware(MiddlewareGroup.ProfilePageParallel, [
   },
   context => {
     console.log('running profilePageParallel middleware3');
-    return { continue: false, data: { profilePageParallel: 'profilePageParallel3' } };
+    return { continue: true, data: { profilePageParallel: 'profilePageParallel3' } };
   },
 ]);
