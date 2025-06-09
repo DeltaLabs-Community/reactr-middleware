@@ -1,6 +1,6 @@
 {
   "name": "reactr-middleware",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Middleware for React Router",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
