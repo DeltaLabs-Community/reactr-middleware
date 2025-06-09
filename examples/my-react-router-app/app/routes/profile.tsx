@@ -1,4 +1,4 @@
-import { createLoaderFromRegistry } from '../../../../src';
+import { createLoaderFromRegistry } from 'reactr-middleware';
 import { useLoaderData } from 'react-router';
 import { MiddlewareGroup } from '~/middleware.config';
 import type { Route } from './+types/profile';

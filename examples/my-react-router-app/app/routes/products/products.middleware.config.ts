@@ -1,4 +1,4 @@
-import { registerMiddleware, commonMiddlewares } from '../../../../../src';
+import { registerMiddleware, commonMiddlewares } from 'reactr-middleware';
 export enum ProductPageMiddleware {
   ProductPage = 'productPage',
   ProductPage2 = 'productPage2',

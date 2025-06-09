@@ -1,4 +1,4 @@
-import { type Middleware, type MiddlewareContext, type MiddlewareResponse } from './types';
+import { type Middleware, type MiddlewareContext, type MiddlewareResponse } from './types.js';
 import { redirect as routerRedirect, LoaderFunctionArgs } from 'react-router';
 
 class MiddlewareExecutor {

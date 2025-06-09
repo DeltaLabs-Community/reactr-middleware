@@ -1,4 +1,4 @@
-import { registerMiddleware, commonMiddlewares } from '../../../src';
+import { registerMiddleware, commonMiddlewares } from 'reactr-middleware';
 import './routes/products/products.middleware.config';
 export enum MiddlewareGroup {
   Public = 'public',

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLoaderData } from 'react-router';
-import { createLoaderFromRegistry } from '../../../../../src';
+import { createLoaderFromRegistry } from 'reactr-middleware';
 import { ProductPageMiddleware } from './products.middleware.config';
 
 export const loader = createLoaderFromRegistry(ProductPageMiddleware.ProductPage);
