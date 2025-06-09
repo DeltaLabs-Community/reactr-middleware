@@ -10,6 +10,7 @@
     "sourceMap": true,
     "outDir": "./dist",
     "rootDir": "./src",
+    "skipLibCheck": true,
   },
-  "exclude": ["examples/**/*", "node_modules", "tests/**/*", "dist", "vitest.config.ts"]
+  "exclude": ["examples/**/*", "node_modules", "tests/**/*", "dist", "vitest.config.ts", "site/**/*", "docs/**/*", "*.md"]
 }

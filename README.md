@@ -139,11 +139,10 @@ export const loader = createLoaderFromRegistry('protected', {
 
 ## 📖 Documentation
 
-- **[Getting Started](https://your-docs-site.com/docs/v-1.0.0/getting-started)** - Installation and basic setup
-- **[Why Reactr Middleware?](https://your-docs-site.com/docs/v-1.0.0/why-reactr-middleware)** - Benefits and use cases
-- **[Creating Middleware](https://your-docs-site.com/docs/v-1.0.0/middleware)** - Custom middleware development
-- **[Registry System](https://your-docs-site.com/docs/v-1.0.0/registry)** - Organizing middleware groups
-- **[API Examples](https://your-docs-site.com/api-examples)** - Real-world usage patterns
+- **[Getting Started](https://reactrmiddleware.com/docs/v-1.0.0/getting-started)** - Installation and basic setup
+- **[Why Reactr Middleware?](https://reactrmiddleware.com/docs/v-1.0.0/why-reactr-middleware)** - Benefits and use cases
+- **[Creating Middleware](https://reactrmiddleware.com/docs/v-1.0.0/middleware)** - Custom middleware development
+- **[Registry System](https://reactrmiddleware.com/docs/v-1.0.0/registry)** - Organizing middleware groups
 
 ## 🎯 Use Cases
 
