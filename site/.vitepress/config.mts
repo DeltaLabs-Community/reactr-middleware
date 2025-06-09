@@ -108,7 +108,7 @@ export default defineConfig({
       copyright: 'Copyright © 2025-Present Deta Labs'
     },
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
+      { icon: 'github', link: 'https://github.com/DeltaLabs-Community/reactr-middleware.git' }
     ]
   }
 })
