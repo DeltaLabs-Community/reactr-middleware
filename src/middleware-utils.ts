@@ -159,7 +159,7 @@ export function createLoader(
 export const commonMiddlewares = {
   // Authentication middleware
   requireAuth: (redirectTo: string = '/login'): Middleware => {
-    return async context => {
+    return async (context: MiddlewareContext) => {
       // Check for auth token in cookies, headers, etc.
       const authHeader = context.request.headers.get('Authorization');
       const hasAuth = authHeader && authHeader.startsWith('Bearer ');
@@ -177,7 +177,7 @@ export const commonMiddlewares = {
 
   // CORS middleware
   cors: (options: { origins?: string[]; methods?: string[] } = {}): Middleware => {
-    return async context => {
+    return async (context: MiddlewareContext) => {
       const { origins = ['*'], methods = ['GET', 'POST', 'PUT', 'DELETE'] } = options;
 
       return {
@@ -195,7 +195,7 @@ export const commonMiddlewares = {
   rateLimit: (maxRequests: number = 100, windowMs: number = 60000): Middleware => {
     const requests = new Map<string, { count: number; resetTime: number }>();
 
-    return async context => {
+    return async (context: MiddlewareContext) => {
       const clientId = context.request.headers.get('x-forwarded-for') || 'unknown';
       const now = Date.now();
       const windowStart = now - windowMs;
@@ -234,7 +234,7 @@ export const commonMiddlewares = {
 
   // Logging middleware
   logger: (options: { includeBody?: boolean } = {}): Middleware => {
-    return async context => {
+    return async (context: MiddlewareContext) => {
       const start = Date.now();
       console.log(`[${new Date().toISOString()}] ${context.request.method} ${context.pathname}`);
 

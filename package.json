@@ -1,8 +1,9 @@
 {
-  "name": "react-router-middleware",
+  "name": "reactr-middleware",
   "version": "1.0.0",
   "description": "Middleware for React Router",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "vitest",
@@ -15,7 +16,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "devDependencies": {
     "@types/node": "^22.15.30",
     "@types/react": "^19.1.6",
