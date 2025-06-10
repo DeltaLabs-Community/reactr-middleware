@@ -82,7 +82,7 @@ export default defineConfig({
       { text: 'Home', link: '/' },
       { text: 'Docs', items:[
         { text: 'v-1.0.2 - Latest', link: '/docs/v-1.0.2/getting-started' },
-        { text: 'v-1.0.0 (Deprecated)', link: '/docs/v-1.0.0/getting-started' },
+        { text: 'v-1.0.0 - (Deprecated)', link: '/docs/v-1.0.0/getting-started' },
       ] }
     ],
 
@@ -124,7 +124,7 @@ export default defineConfig({
       copyright: 'Copyright © 2025-Present Deta Labs'
     },
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/DeltaLabs-Community/reactr-middleware.git' }
+      { icon: 'github', link: 'https://github.com/DeltaLabs-Community/reactr-middleware' }
     ]
   }
 })

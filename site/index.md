@@ -12,10 +12,10 @@ hero:
   actions:
     - theme: brand
       text: Get Started
-      link: /docs/v-1.0.0/getting-started
+      link: /docs/v-1.0.2/getting-started
     - theme: alt
       text: View on GitHub
-      link: https://github.com/your-username/react-router-middleware
+      link: https://github.com/DeltaLabs-Community/reactr-middleware
 
 features:
   - title: 🚀 Easy Integration
