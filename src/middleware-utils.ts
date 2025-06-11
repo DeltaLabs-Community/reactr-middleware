@@ -1,49 +1,99 @@
-import { type Middleware, type MiddlewareContext, type MiddlewareResponse } from './types.js';
+import { GroupMiddlewareConfig, RegistryMiddlewareConfig, type Middleware, type MiddlewareContext, type MiddlewareResponse } from './types.js';
 import { redirect as routerRedirect, LoaderFunctionArgs } from 'react-router';
 
 class MiddlewareExecutor {
   static async executeMiddlewares(
-    middlewares: Middleware[],
+    middlewares: Middleware[] | GroupMiddlewareConfig,
     context: MiddlewareContext,
     parallel: boolean = false,
     rejectOnError: boolean = false,
     redirect?: string
   ): Promise<MiddlewareResponse> {
-    if (parallel) {
-      return this.executeMiddlewaresParallel(middlewares, context, rejectOnError, redirect);
-    }
-
+    let result:MiddlewareResponse;
     let accumulatedData: any = {};
     let accumulatedHeaders: Record<string, string> = {};
-
-    for (const middleware of middlewares) {
-      const result = await middleware(context);
-
-      if (!result.continue) {
-        if (rejectOnError) {
-          throw new Error('Middleware failed');
-        } else {
-          return {
-            continue: false,
-            data: result.data,
-            headers: result.headers,
-            redirect: result.redirect || redirect,
-          };
+    
+    if (parallel && !this.isGroupConfig(middlewares)) {
+      return this.executeMiddlewaresParallel(middlewares as Middleware[], context, rejectOnError, redirect);
+    }
+    else if(this.isGroupConfig(middlewares)){
+      for(const entry of middlewares){
+        if(this.isRegistryConfigArray(entry)){
+          result = await this.executeRegistryMiddlewares(entry as RegistryMiddlewareConfig[], context, parallel, rejectOnError, redirect);
+        }
+        else{
+          if(parallel){
+            result = await this.executeMiddlewaresParallel(entry as Middleware[], context, rejectOnError, redirect);
+          }
+          else{
+            result = await this.executeMiddlewares(entry as Middleware[], context, parallel, rejectOnError, redirect);
+          }
         }
       }
-
-      // Accumulate data from all middleware
-      if (result.data) {
+      if(result.continue){
         accumulatedData = { ...accumulatedData, ...result.data };
-        context.data = { ...context.data, ...result.data };
-      }
-
-      // Accumulate headers from all middleware
-      if (result.headers) {
         accumulatedHeaders = { ...accumulatedHeaders, ...result.headers };
       }
     }
+    else{
+      for (const middleware of middlewares) {
+        result = await (middleware as Middleware)(context);
+  
+        if (!result.continue) {
+          if (rejectOnError) {
+            throw new Error('Middleware failed');
+          } else {
+            return {
+              continue: false,
+              data: result.data,
+              headers: result.headers,
+              redirect: result.redirect || redirect,
+            };
+          }
+        }
+  
+        // Accumulate data from all middleware
+        if (result.data) {
+          accumulatedData = { ...accumulatedData, ...result.data };
+          context.data = { ...context.data, ...result.data };
+        }
+        // Accumulate headers from all middleware
+        if (result.headers) {
+          accumulatedHeaders = { ...accumulatedHeaders, ...result.headers };
+        }
+      }
+    }
+    return {
+      continue: true,
+      data: accumulatedData,
+      headers: accumulatedHeaders,
+    };
+  }
 
+  static async executeRegistryMiddlewares(
+    middlewares: RegistryMiddlewareConfig[],
+    context: MiddlewareContext,
+    parallel: boolean = false,
+    rejectOnError: boolean = false,
+    redirect?: string
+  ): Promise<MiddlewareResponse> {
+    let result:MiddlewareResponse;
+    let accumulatedData: any = {};
+    let accumulatedHeaders: Record<string, string> = {};
+    for(const entryList of middlewares){
+      for(const entry of entryList){
+        if(entry.parallel){
+          result = await this.executeMiddlewaresParallel(entry.parallel as Middleware[], context, rejectOnError, redirect);
+        }
+        else{
+          result = await this.executeMiddlewares(entry.sequential as Middleware[], context, parallel, rejectOnError, redirect);
+        }
+        if(result.continue){
+          accumulatedData = { ...accumulatedData, ...result.data };
+          accumulatedHeaders = { ...accumulatedHeaders, ...result.headers };
+        }
+      }
+    }
     return {
       continue: true,
       data: accumulatedData,
@@ -106,8 +156,30 @@ class MiddlewareExecutor {
     };
   }
 
+  static isGroupConfig(obj:any):boolean{
+    let isGroup = true;
+    if(!Array.isArray(obj)){
+      isGroup = false;
+    }
+    else if(!obj.every(item => Array.isArray(item))){
+      isGroup = false;
+    }
+    return isGroup;
+  }
+
+  static isRegistryConfigArray(obj:any):boolean{
+    let isRegistry = true;
+    if(!Array.isArray(obj)){
+      isRegistry = false;
+    }
+    else if(!obj.every(item => Array.isArray(item) && item.every(item => typeof item === 'object' && ('parallel' in item || 'sequential' in item)))){
+      isRegistry = false;
+    }
+    return isRegistry;
+  }
+
   static createReactRouterLoader(
-    middlewares: Middleware[],
+    middlewares: Middleware[] | GroupMiddlewareConfig,
     parallel: boolean = false,
     rejectOnError: boolean = false,
     redirect?: string
