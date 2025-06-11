@@ -19,7 +19,7 @@ class MiddlewareExecutor {
     else if(this.isGroupConfig(middlewares)){
       for(const entry of middlewares){
         if(this.isRegistryConfigArray(entry)){
-          result = await this.executeRegistryMiddlewares(entry as RegistryMiddlewareConfig[], context, parallel, rejectOnError, redirect);
+          result = await this.executeRegistryMiddlewares(entry as RegistryMiddlewareConfig[], context, rejectOnError, redirect);
         }
         else{
           if(parallel){
@@ -73,7 +73,6 @@ class MiddlewareExecutor {
   static async executeRegistryMiddlewares(
     middlewares: RegistryMiddlewareConfig[],
     context: MiddlewareContext,
-    parallel: boolean = false,
     rejectOnError: boolean = false,
     redirect?: string
   ): Promise<MiddlewareResponse> {
@@ -83,10 +82,10 @@ class MiddlewareExecutor {
     for(const entryList of middlewares){
       for(const entry of entryList){
         if(entry.parallel){
-          result = await this.executeMiddlewaresParallel(entry.parallel as Middleware[], context, rejectOnError, redirect);
+          result = await this.executeMiddlewaresParallel(entry.parallel as Middleware[], context, rejectOnError,redirect);
         }
         else{
-          result = await this.executeMiddlewares(entry.sequential as Middleware[], context, parallel, rejectOnError, redirect);
+          result = await this.executeMiddlewares(entry.sequential as Middleware[], context, false, rejectOnError, redirect);
         }
         if(result.continue){
           accumulatedData = { ...accumulatedData, ...result.data };
