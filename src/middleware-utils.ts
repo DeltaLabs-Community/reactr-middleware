@@ -157,25 +157,23 @@ class MiddlewareExecutor {
   }
 
   static isGroupConfig(obj:any):boolean{
-    let isGroup = true;
     if(!Array.isArray(obj)){
-      isGroup = false;
+      return false;
     }
     else if(!obj.every(item => Array.isArray(item))){
-      isGroup = false;
+      return false;
     }
-    return isGroup;
+    return true;
   }
 
   static isRegistryConfigArray(obj:any):boolean{
-    let isRegistry = true;
     if(!Array.isArray(obj)){
-      isRegistry = false;
+      return false;
     }
     else if(!obj.every(item => Array.isArray(item) && item.every(item => typeof item === 'object' && ('parallel' in item || 'sequential' in item)))){
-      isRegistry = false;
+      return false;
     }
-    return isRegistry;
+    return true;
   }
 
   static createReactRouterLoader(
