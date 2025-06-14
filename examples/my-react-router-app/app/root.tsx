@@ -2,7 +2,12 @@ import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration }
 
 import type { Route } from './+types/root';
 import './app.css';
-import '~/middleware.config';
+
+if (typeof window === 'undefined') {
+  import('~/middleware.config').catch(err => {
+    console.error('Error importing middleware config:', err);
+  });
+}
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },

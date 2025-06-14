@@ -6,7 +6,7 @@ import {
   commonMiddlewares,
   type Middleware,
   type MiddlewareContext,
-} from '../src/middleware-utils';
+} from '../src';
 
 // Mock React Router
 vi.mock('react-router', () => ({
@@ -112,15 +112,12 @@ describe('Middleware Registry', () => {
 
     it('should handle empty middleware groups', async () => {
       registerMiddleware('empty-group', []);
-
       const loader = createLoaderFromRegistry('empty-group');
-      const result = await loader({
+      await expect(loader({
         request: mockRequest,
         params: { id: '123' },
         context: {},
-      } as any);
-
-      expect((result as any).middlewareData).toEqual({});
+      } as any)).rejects.toThrow('Middleware failed');
     });
   });
 

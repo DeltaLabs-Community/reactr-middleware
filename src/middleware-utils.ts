@@ -1,4 +1,4 @@
-import { GroupMiddlewareConfig, RegistryMiddlewareConfig, type Middleware, type MiddlewareContext, type MiddlewareResponse } from './types.js';
+import { GroupMiddlewareConfig, MiddlewareConfigEntry, type Middleware, type MiddlewareContext, type MiddlewareResponse } from './types.js';
 import { redirect as routerRedirect, LoaderFunctionArgs } from 'react-router';
 
 class MiddlewareExecutor {
@@ -9,33 +9,48 @@ class MiddlewareExecutor {
     rejectOnError: boolean = false,
     redirect?: string
   ): Promise<MiddlewareResponse> {
-    let result:MiddlewareResponse;
-    let accumulatedData: any = {};
+    let result:MiddlewareResponse = { continue: true, data: {}, headers: {} };
+    let accumulatedData: any = {}; 
     let accumulatedHeaders: Record<string, string> = {};
-    
-    if (parallel && !this.isGroupConfig(middlewares)) {
+
+    if (parallel && !isGroupConfig(middlewares) && isMiddlewareArray(middlewares)) {
       return this.executeMiddlewaresParallel(middlewares as Middleware[], context, rejectOnError, redirect);
     }
-    else if(this.isGroupConfig(middlewares)){
+    else if(isGroupConfig(middlewares) && !isMiddlewareArray(middlewares)){
       for(const entry of middlewares){
-        if(this.isRegistryConfigArray(entry)){
-          result = await this.executeRegistryMiddlewares(entry as RegistryMiddlewareConfig[], context, rejectOnError, redirect);
+        if(typeof entry === 'object' && ('parallel' in entry || 'sequential' in entry)){
+          result = await this.executeRegistryMiddleware(entry as MiddlewareConfigEntry, context, rejectOnError, redirect);
         }
         else{
-          if(parallel){
-            result = await this.executeMiddlewaresParallel(entry as Middleware[], context, rejectOnError, redirect);
-          }
-          else{
-            result = await this.executeMiddlewares(entry as Middleware[], context, parallel, rejectOnError, redirect);
+          result = await this.executeMiddlewares([entry] as Middleware[], context, parallel, rejectOnError, redirect);
+        }
+        
+        // Early exit if continue is false
+        if (!result.continue) {
+          if (rejectOnError) {
+            throw new Error('Middleware failed');
+          } else {
+            return {
+              continue: false,
+              data: result.data,
+              headers: result.headers,
+              redirect: result.redirect || redirect,
+            };
           }
         }
-      }
-      if(result.continue){
-        accumulatedData = { ...accumulatedData, ...result.data };
-        accumulatedHeaders = { ...accumulatedHeaders, ...result.headers };
+        
+        // Accumulate data from all middleware
+        if (result.data) {
+          accumulatedData = { ...accumulatedData, ...result.data };
+          context.data = { ...context.data, ...result.data };
+        }
+        // Accumulate headers from all middleware
+        if (result.headers) {
+          accumulatedHeaders = { ...accumulatedHeaders, ...result.headers };
+        }
       }
     }
-    else{
+    else if(isMiddlewareArray(middlewares)){
       for (const middleware of middlewares) {
         result = await (middleware as Middleware)(context);
   
@@ -70,29 +85,38 @@ class MiddlewareExecutor {
     };
   }
 
-  static async executeRegistryMiddlewares(
-    middlewares: RegistryMiddlewareConfig[],
+  static async executeRegistryMiddleware(
+    middleware: MiddlewareConfigEntry,
     context: MiddlewareContext,
     rejectOnError: boolean = false,
     redirect?: string
   ): Promise<MiddlewareResponse> {
-    let result:MiddlewareResponse;
+    let result:MiddlewareResponse = { continue: true, data: {}, headers: {} };
     let accumulatedData: any = {};
     let accumulatedHeaders: Record<string, string> = {};
-    for(const entryList of middlewares){
-      for(const entry of entryList){
-        if(entry.parallel){
-          result = await this.executeMiddlewaresParallel(entry.parallel as Middleware[], context, rejectOnError,redirect);
-        }
-        else{
-          result = await this.executeMiddlewares(entry.sequential as Middleware[], context, false, rejectOnError, redirect);
-        }
-        if(result.continue){
-          accumulatedData = { ...accumulatedData, ...result.data };
-          accumulatedHeaders = { ...accumulatedHeaders, ...result.headers };
-        }
+    // Iterate over the actual keys of the middleware object
+    for(const key in middleware) {
+      if(key === 'parallel') {
+        result = await this.executeMiddlewaresParallel(middleware[key] as Middleware[], context, rejectOnError, redirect);
+      }
+      else if(key === 'sequential') {
+        result = await this.executeMiddlewares(middleware[key] as Middleware[], context, false, rejectOnError, redirect);
+      }
+      
+      if (!result.continue) {
+        return result;
+      }
+      
+      // Accumulate results
+      if (result.data) {
+        accumulatedData = { ...accumulatedData, ...result.data };
+        context.data = { ...context.data, ...result.data };
+      }
+      if (result.headers) {
+        accumulatedHeaders = { ...accumulatedHeaders, ...result.headers };
       }
     }
+      // Accumulation is now handled inside the loop
     return {
       continue: true,
       data: accumulatedData,
@@ -155,26 +179,6 @@ class MiddlewareExecutor {
     };
   }
 
-  static isGroupConfig(obj:any):boolean{
-    if(!Array.isArray(obj)){
-      return false;
-    }
-    else if(!obj.every(item => Array.isArray(item))){
-      return false;
-    }
-    return true;
-  }
-
-  static isRegistryConfigArray(obj:any):boolean{
-    if(!Array.isArray(obj)){
-      return false;
-    }
-    else if(!obj.every(item => Array.isArray(item) && item.every(item => typeof item === 'object' && ('parallel' in item || 'sequential' in item)))){
-      return false;
-    }
-    return true;
-  }
-
   static createReactRouterLoader(
     middlewares: Middleware[] | GroupMiddlewareConfig,
     parallel: boolean = false,
@@ -214,7 +218,7 @@ class MiddlewareExecutor {
 
 // Utility to create a loader for use in route files
 export function createLoader(
-  middlewares: Middleware[] = [],
+  middlewares: Middleware[] | GroupMiddlewareConfig = [],
   options?: { parallel?: boolean; rejectOnError?: boolean; redirect?: string }
 ) {
   return MiddlewareExecutor.createReactRouterLoader(
@@ -324,65 +328,21 @@ export const commonMiddlewares = {
   },
 };
 
+function isGroupConfig(obj: any): boolean {
+  return Array.isArray(obj) &&
+    obj.length > 0 &&
+    obj.every(item =>
+      typeof item === 'function' ||
+      (typeof item === 'object' && (('parallel' in item) || ('sequential' in item)))
+    );
+}
+
+function isMiddlewareArray(obj: any): boolean {
+  return Array.isArray(obj) &&
+    obj.length > 0 &&
+    obj.every(item => typeof item === 'function');
+}
+
 // Export everything
-export { MiddlewareExecutor };
+export { MiddlewareExecutor, isGroupConfig, isMiddlewareArray };
 export type { Middleware, MiddlewareContext, MiddlewareResponse };
-
-class MiddlewareRegistry {
-  private static middlewareGroups: Map<string, Middleware[]> = new Map();
-
-  static register(name: string, middlewares: Middleware[]) {
-    this.middlewareGroups.set(name, middlewares);
-  }
-
-  static get(name: string): Middleware[] {
-    const middlewares = this.middlewareGroups.get(name);
-    if (!middlewares) {
-      throw new Error(
-        `Middleware group "${name}" not found. Available groups: ${Array.from(this.middlewareGroups.keys()).join(', ')}`
-      );
-    }
-    return middlewares;
-  }
-
-  static createLoaderFromGroup(names: string[]): Middleware[] {
-    return names.flatMap(name => this.get(name));
-  }
-
-  static createLoader(
-    name: string | string[],
-    parallel: boolean = false,
-    rejectOnError: boolean = false,
-    redirect?: string
-  ) {
-    if (Array.isArray(name)) {
-      return MiddlewareExecutor.createReactRouterLoader(
-        this.createLoaderFromGroup(name),
-        parallel,
-        rejectOnError,
-        redirect
-      );
-    }
-    return MiddlewareExecutor.createReactRouterLoader(this.get(name), parallel, rejectOnError, redirect);
-  }
-
-  static list(): string[] {
-    return Array.from(this.middlewareGroups.keys());
-  }
-}
-
-// Convenience functions for the registry
-export function registerMiddleware(name: string, middlewares: Middleware[]) {
-  MiddlewareRegistry.register(name, middlewares);
-}
-
-export function createLoaderFromRegistry(
-  name: string | string[],
-  options?: { parallel?: boolean; rejectOnError?: boolean; redirect?: string }
-) {
-  return MiddlewareRegistry.createLoader(name, options?.parallel, options?.rejectOnError, options?.redirect);
-}
-
-export function listRegisteredMiddleware(): string[] {
-  return MiddlewareRegistry.list();
-}

@@ -20,7 +20,5 @@ export type MiddlewareConfigEntry = {
   sequential?: Middleware[];
 }
 
-export type RegistryMiddlewareConfig = MiddlewareConfigEntry[];
 
-
-export type GroupMiddlewareConfig =  (Middleware [] | RegistryMiddlewareConfig [])[]
+export type GroupMiddlewareConfig = (Middleware | MiddlewareConfigEntry)[]
