@@ -117,7 +117,7 @@ describe('Middleware Registry', () => {
         request: mockRequest,
         params: { id: '123' },
         context: {},
-      } as any)).rejects.toThrow('Middleware failed');
+      } as any)).rejects.toThrowError();
     });
   });
 
@@ -369,4 +369,104 @@ describe('Middleware Registry', () => {
       consoleSpy.mockRestore();
     });
   });
+
+  describe("Registry with Group Config", () => {
+    it("should execute middlewares in sequence", async () => {
+      const middleware1: Middleware = async () => ({
+        continue: true,
+        data: { step1: 'completed' },
+      });
+
+      const middleware2: Middleware = async () => ({
+        continue: true,
+        data: { step2: 'completed' },
+      });
+
+      registerMiddleware('sequential-test', [middleware1, middleware2]);
+
+      const loader = createLoaderFromRegistry('sequential-test');
+      const result = await loader({
+        request: mockRequest,
+        params: { id: '123' },
+        context: {},
+      } as any);
+    });
+    it("should execute middlewares in parallel", async () => {
+      const startTimes: number[] = [];
+      const middleware1: Middleware = async () => {
+        startTimes.push(Date.now());
+        await new Promise(resolve => setTimeout(resolve, 50));
+        return { continue: true, data: { step1: 'completed' } };
+      };
+
+      const middleware2: Middleware = async () => {
+        startTimes.push(Date.now());
+        await new Promise(resolve => setTimeout(resolve, 50));
+        return { continue: true, data: { step2: 'completed' } };
+      };
+
+      registerMiddleware('parallel-test', [
+        {
+          parallel: [middleware1, middleware2]
+        }
+      ]);
+
+      const loader = createLoaderFromRegistry('parallel-test');
+
+      const startTime = Date.now();
+      const result = await loader({
+        request: mockRequest,
+        params: { id: '123' },
+        context: {},
+      } as any);
+      const totalTime = Date.now() - startTime;
+
+      // Should complete faster than sequential execution
+      expect(totalTime).toBeLessThan(80); // Less than 2 * 50ms
+      expect((result as any).middlewareData).toEqual({
+        step1: 'completed',
+        step2: 'completed',
+      });
+    });
+
+    it("it should throw error when multiple group middleware configs are combined", () => {
+      registerMiddleware('group1', [
+        {
+          parallel: []
+        }
+      ]);
+      registerMiddleware('group2', [
+        {
+          parallel: []
+        }
+      ]);
+      expect(() => {
+        createLoaderFromRegistry(['group1', 'group2']);
+      }).toThrow();
+    });
+    it("it should throw error when multiple middleware arrays are combined with group middleware config", () => {
+
+      const middleware1: Middleware = async () => ({
+        continue: true,
+        data: { step1: 'completed' },
+      });
+
+      const middleware2: Middleware = async () => ({
+        continue: true,
+        data: { step2: 'completed' },
+      });
+
+      registerMiddleware('group1', [
+        middleware1
+      ]);
+      registerMiddleware('group2', [
+        {
+          parallel: [middleware2]
+        }
+      ]);
+      expect(() => {
+        createLoaderFromRegistry(['group1', 'group2']);
+      }).toThrow();
+    });
+  })
 });

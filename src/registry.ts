@@ -20,7 +20,7 @@ class MiddlewareRegistry {
   static createLoaderFromGroup(names: string[]): Middleware[] {
     const results = names.map(name => this.get(name));
     if(!results.every((item) => isMiddlewareArray(item))){
-      throw new Error("Cannot combine multiple GroupMiddlewareConfig");
+      throw new Error("Cannot combine multiple GroupMiddlewareConfig or Middleware arrays with GroupMiddlewareConfig");
     }
     const middlewares: Middleware[] = [];
     for(const result of results){

@@ -12,6 +12,11 @@ class MiddlewareExecutor {
     let result:MiddlewareResponse = { continue: true, data: {}, headers: {} };
     let accumulatedData: any = {}; 
     let accumulatedHeaders: Record<string, string> = {};
+    
+    // Check for empty middleware array
+    if (Array.isArray(middlewares) && middlewares.length === 0) {
+      throw new Error('Middleware group is empty');
+    }
 
     if (parallel && !isGroupConfig(middlewares) && isMiddlewareArray(middlewares)) {
       return this.executeMiddlewaresParallel(middlewares as Middleware[], context, rejectOnError, redirect);
@@ -329,12 +334,14 @@ export const commonMiddlewares = {
 };
 
 function isGroupConfig(obj: any): boolean {
-  return Array.isArray(obj) &&
-    obj.length > 0 &&
-    obj.every(item =>
-      typeof item === 'function' ||
-      (typeof item === 'object' && (('parallel' in item) || ('sequential' in item)))
-    );
+  if (!Array.isArray(obj) || obj.length === 0) {
+    return false;
+  }
+  return obj.some(item => 
+    typeof item === 'object' && 
+    item !== null && 
+    (('parallel' in item) || ('sequential' in item))
+  );
 }
 
 function isMiddlewareArray(obj: any): boolean {
