@@ -116,6 +116,7 @@ export default defineConfig({
           text:"Getting Started",
           items:[
             { text: 'Quick Start', link: '/docs/v-1.0.2/getting-started' },
+            {text:"Why Reactr Middleware?", link: '/docs/v-1.0.2/why-reactr-middleware' },
           ]
         },
         {
@@ -131,6 +132,7 @@ export default defineConfig({
           text:"Getting Started",
           items:[
             { text: 'Quick Start', link: '/docs/v-1.0.3/getting-started' },
+            {text:"Why Reactr Middleware?", link: '/docs/v-1.0.3/why-reactr-middleware' },
           ]
         },
         {
