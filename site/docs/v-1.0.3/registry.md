@@ -145,13 +145,45 @@ createConditionalGroup(
 
 ## Registry Options
 
-### Parallel Execution
+### Execution Strategies
+
+#### Global Parallel Execution
 ```typescript
 // Execute all middleware in the group simultaneously
 export const loader = createLoaderFromRegistry('api', { 
   parallel: true 
 });
 ```
+
+#### Mixed Execution Patterns (v1.0.3+)
+```typescript
+// Register middleware with mixed execution patterns
+registerMiddleware('api', [
+  commonMiddlewares.cors(), // Sequential execution
+  {
+    parallel: [
+      // These middleware execute simultaneously
+      commonMiddlewares.rateLimit(100, 60000),
+      commonMiddlewares.logger({ includeBody: true }),
+    ],
+    sequential: [
+      // These execute in order after parallel group completes
+      roleMiddleware(),
+      authorizationMiddleware()
+    ]
+  }
+]);
+
+// Use the mixed-pattern group (parallel option is ignored for group configuration)
+export const loader = createLoaderFromRegistry('api');
+```
+
+::: warning
+When using mixed execution patterns:
+- The `parallel` option in `createLoaderFromRegistry` is ignored for group configurations
+- You cannot mix configuration groups with regular middleware in the same array
+- You cannot combine registries that contain multiple middleware groups
+:::
 
 ### Error Handling
 ```typescript
@@ -220,12 +252,21 @@ registerMiddleware('protected', [
   commonMiddlewares.logger({ includeBody: true })
 ]);
 
-// Admin routes
+// Admin routes with mixed execution patterns (v1.0.3+)
 registerMiddleware('admin', [
   commonMiddlewares.requireAuth('/login'),
-  requireRole('admin'),
-  commonMiddlewares.rateLimit(20, 60000),
-  auditMiddleware()
+  {
+    parallel: [
+      // These middleware execute simultaneously
+      commonMiddlewares.rateLimit(20, 60000),
+      commonMiddlewares.logger({ includeBody: true }),
+    ],
+    sequential: [
+      // These execute in order after parallel group completes
+      requireRole('admin'),
+      auditMiddleware()
+    ]
+  }
 ]);
 ```
 

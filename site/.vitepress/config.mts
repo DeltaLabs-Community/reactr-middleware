@@ -88,7 +88,8 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Docs', items:[
-        { text: 'v-1.0.2 - Latest', link: '/docs/v-1.0.2/getting-started' },
+        { text: 'v-1.0.3 - Latest', link: '/docs/v-1.0.3/getting-started' },
+        { text: 'v-1.0.2', link: '/docs/v-1.0.2/getting-started' },
         { text: 'v-1.0.0 - (Deprecated)', link: '/docs/v-1.0.0/getting-started' },
       ] }
     ],
@@ -124,7 +125,28 @@ export default defineConfig({
             { text: 'Registry', link: '/docs/v-1.0.2/registry' },
           ]
         }
-      ]
+      ],
+      '/docs/v-1.0.3/': [
+        {
+          text:"Getting Started",
+          items:[
+            { text: 'Quick Start', link: '/docs/v-1.0.3/getting-started' },
+          ]
+        },
+        {
+          text:"Changelog",
+          items:[
+            { text: 'v-1.0.3', link: '/docs/v-1.0.3/changelog' }, 
+          ]
+        },
+        {
+          text:"Core Concepts",
+          items:[
+            { text: 'Middleware', link: '/docs/v-1.0.3/middleware' },
+            { text: 'Registry', link: '/docs/v-1.0.3/registry' },
+          ]
+        }
+      ],
     },
     footer: {
       message: 'Released under the MIT License.',

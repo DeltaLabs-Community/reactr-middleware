@@ -12,7 +12,7 @@ hero:
   actions:
     - theme: brand
       text: Get Started
-      link: /docs/v-1.0.2/getting-started
+      link: /docs/v-1.0.3/getting-started
     - theme: alt
       text: View on GitHub
       link: https://github.com/DeltaLabs-Community/reactr-middleware

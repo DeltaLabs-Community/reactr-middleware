@@ -1,7 +1,6 @@
 import { useLoaderData } from 'react-router';
 import { createLoaderFromRegistry } from '../../../../../src';
-import { MiddlewareGroup } from '~/middleware.config';
-export const loader = createLoaderFromRegistry(MiddlewareGroup.ProductPage);
+export const loader = createLoaderFromRegistry("productPage");
 
 const Product = () => {
   const { middlewareData } = useLoaderData();

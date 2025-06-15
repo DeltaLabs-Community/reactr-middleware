@@ -1,34 +1,23 @@
 import { registerMiddleware, commonMiddlewares } from '../../../src';
-export enum MiddlewareGroup {
-  Public = 'public',
-  Protected = 'protected',
-  Admin = 'admin',
-  Api = 'api',
-  ProfilePage = 'profilePage',
-  ProductPage = 'productPage',
-}
-
-export type MiddlewareConfig = keyof typeof MiddlewareGroup;
-
 // Register middleware groups centrally
-registerMiddleware(MiddlewareGroup.Public, [
+registerMiddleware("public", [
   commonMiddlewares.logger({ includeBody: false }),
   commonMiddlewares.cors(),
 ]);
 
-registerMiddleware(MiddlewareGroup.Protected, [
+registerMiddleware("protected", [
   commonMiddlewares.logger({ includeBody: true }),
   commonMiddlewares.rateLimit(50, 60000),
 ]);
 
-registerMiddleware(MiddlewareGroup.Admin, [
+registerMiddleware("admin", [
   commonMiddlewares.logger({ includeBody: true }),
   commonMiddlewares.requireAuth('/login'),
   commonMiddlewares.rateLimit(20, 60000),
   // Add more admin-specific middleware here
 ]);
 
-registerMiddleware(MiddlewareGroup.Api, [
+registerMiddleware("api", [
   commonMiddlewares.cors({
     origins: ['http://localhost:3000', 'https://yourdomain.com'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -38,7 +27,7 @@ registerMiddleware(MiddlewareGroup.Api, [
 ]);
 
 // You can also register custom middleware combinations
-registerMiddleware(MiddlewareGroup.ProfilePage, [
+registerMiddleware("profilePage", [
   commonMiddlewares.logger({ includeBody: true }),
   context => {
     console.log('running profilePage middleware');
@@ -46,29 +35,34 @@ registerMiddleware(MiddlewareGroup.ProfilePage, [
   },
 ]);
 
-registerMiddleware(MiddlewareGroup.ProductPage,[
+registerMiddleware("productPage",[
   function(context){
-    console.log('running productPage1 middleware sequential');
+    console.log('running productPage1 middleware sequential1');
     return { continue: true, data: { productPage: 'productPage' } };
   },
   {
     parallel:[
       function(context){
-        console.log('running productPage2 middleware1 parallel');
+        console.log('running productPage2 middleware1 parallel2');
         return { continue: true, data: context.data };
       },
       function(context){
-        const data = {...context.data, productPageParallel: 'productPageParallel'};
+        const data = {...context.data, productPageParallel: 'productPageParallel3'};
         console.log('running productPage3 middleware2 parallel');
         return { continue: true, data: data };
       }
     ],
     sequential:[
       function(context){
-        const data = {...context.data, productPageSequential: 'productPageSequential'};
+        const data = {...context.data, productPageSequential: 'productPageSequential4'};
         console.log('running productPage4 middleware sequential');
         return { continue: true, data: data };
       }
     ]
+  },
+  function(context){
+    const data = {...context.data, productPageSequential5: 'productPageSequential5'};
+    console.log('running productPage5 middleware sequential');
+    return { continue: true, data };
   }
 ])
