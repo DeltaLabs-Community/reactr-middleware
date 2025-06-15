@@ -389,12 +389,7 @@ registerMiddleware('public-api', [
 ```typescript
 // app/root.tsx
 // Import middleware config early to ensure registration
-// This is important for server-side rendering
-if (typeof window === 'undefined') {
-  import('~/middleware.config').catch(err => {
-    console.error('Error importing middleware config:', err);
-  });
-}
+import "./middleware.config";
 
 // Your app code...
 ```
