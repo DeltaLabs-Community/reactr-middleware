@@ -1,4 +1,4 @@
-import { isGroupConfig, isMiddlewareArray, MiddlewareExecutor } from "./middleware-utils.js";
+import { isMiddlewareArray, MiddlewareExecutor } from "./middleware-utils.js";
 import { Middleware, GroupMiddlewareConfig } from "./types.js";
 
 class MiddlewareRegistry {
