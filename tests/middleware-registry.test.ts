@@ -468,5 +468,101 @@ describe('Middleware Registry', () => {
         createLoaderFromRegistry(['group1', 'group2']);
       }).toThrow();
     });
+
+    it("when config, the paralel option should be ignored", async ()=>{
+      const startTimes: number[] = [];
+      const middleware1: Middleware = async () => {
+        startTimes.push(Date.now());
+        await new Promise(resolve => setTimeout(resolve, 50));
+        return {
+        continue: true,
+        data: { step1: 'completed' },
+      }};
+
+      const middleware2: Middleware = async () => {
+        startTimes.push(Date.now());
+        await new Promise(resolve => setTimeout(resolve, 50));
+        return {
+        continue: true,
+        data: { step2: 'completed' },
+      }};
+
+      const middleware3: Middleware = async () => {
+        startTimes.push(Date.now());
+        await new Promise(resolve => setTimeout(resolve, 50));
+        return {
+        continue: true,
+        data: { step3: 'completed' },
+      }};
+
+      registerMiddleware('group1', [
+        middleware1,
+        middleware3,
+        {
+          parallel: [middleware2]
+        }
+      ]);
+      const loader = createLoaderFromRegistry("group1",{parallel:true});
+      const startTime = Date.now();
+      const result = await loader({
+        request: mockRequest,
+        params: { id: '123' },
+        context: {},
+      } as any);
+      const totalTime = Date.now() - startTime;
+      expect(totalTime).toBeGreaterThanOrEqual(100);
+      expect((result as any).middlewareData).toEqual({
+        step1: 'completed',
+        step2: 'completed',
+        step3: 'completed',
+      });
+    })
+
+    it("it should reject on error for the config",async ()=>{
+      const middleware1: Middleware = async () => ({
+        continue: true,
+        data: { step1: 'completed' },
+      });
+
+      const middleware2: Middleware = async () => {
+        throw new Error("Middleware failed");
+      };
+
+      registerMiddleware('group1', [
+        {
+          parallel: [middleware1,middleware2]
+        }
+      ]);
+      const loader = createLoaderFromRegistry("group1",{rejectOnError:true});
+      await expect(loader({
+        request: mockRequest,
+        params: { id: '123' },
+        context: {},
+      } as any)).rejects.toThrow();
+    })
+
+    it("it should redirect on error for the config",async ()=>{
+      const middleware1: Middleware = async () => ({
+        continue: true,
+        data: { step1: 'completed' },
+      });
+
+      const middleware2: Middleware = async () => {
+        throw new Error("Middleware failed");
+      };
+
+      registerMiddleware('group1', [
+        {
+          parallel: [middleware1,middleware2]
+        }
+      ]);
+      const loader = createLoaderFromRegistry("group1",{redirect:"/error"});
+      const result = await loader({
+        request: mockRequest,
+        params: { id: '123' },
+        context: {},
+      } as any);
+      expect(result).toEqual({ type: 'redirect', url: '/error' });
+    })
   })
 });
