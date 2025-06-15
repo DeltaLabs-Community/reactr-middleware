@@ -1,1 +1,0 @@
-import{w as s,t as o,o as t}from"./chunk-NL6KNZEE-njEFggvy.js";const e=()=>{const{middlewareData:r}=o();return t.jsxs("div",{children:[t.jsx("h1",{children:"Product"}),t.jsx("pre",{children:JSON.stringify(r,null,2)})]})},a=s(e);export{a as default};
