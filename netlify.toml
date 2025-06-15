@@ -1,5 +1,9 @@
 # netlify.toml
-# This file configures Netlify redirects for manual uploads
+# This file configures Netlify deployment and redirects
+
+[build]
+  publish = "site/.vitepress/dist"
+  command = "npm run docs:build"
 
 # These redirect rules ensure proper handling of clean URLs
 [[redirects]]
@@ -7,9 +11,13 @@
   to = "/index.html"
   status = 200
   force = false
+  conditions = {Role = ["anonymous"]}
 
-# Handle 404s properly
-[[redirects]]
-  from = "/*"
-  to = "/404.html"
-  status = 404
+# Ensure trailing slashes are handled correctly
+[[plugins]]
+  package = "@netlify/plugin-sitemap"
+
+[plugins.inputs]
+  buildDir = "site/.vitepress/dist"
+  prettyURLs = true
+  trailingSlash = false
