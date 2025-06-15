@@ -1,0 +1,1 @@
+import{w as i,t as s,o as e}from"./chunk-NL6KNZEE-njEFggvy.js";const o=i(function(){const{middlewareData:r}=s();return e.jsxs("div",{children:[e.jsx("h1",{children:"Profile Page"}),e.jsx("p",{children:"Middleware Data:"}),e.jsx("pre",{children:JSON.stringify(r,null,2)})]})});export{o as default};

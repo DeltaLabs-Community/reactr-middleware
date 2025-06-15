@@ -6,7 +6,7 @@ import {
   commonMiddlewares,
   type Middleware,
   type MiddlewareContext,
-} from '../src/middleware-utils';
+} from '../src';
 
 // Mock React Router
 vi.mock('react-router', () => ({
@@ -112,15 +112,12 @@ describe('Middleware Registry', () => {
 
     it('should handle empty middleware groups', async () => {
       registerMiddleware('empty-group', []);
-
       const loader = createLoaderFromRegistry('empty-group');
-      const result = await loader({
+      await expect(loader({
         request: mockRequest,
         params: { id: '123' },
         context: {},
-      } as any);
-
-      expect((result as any).middlewareData).toEqual({});
+      } as any)).rejects.toThrowError();
     });
   });
 
@@ -372,4 +369,200 @@ describe('Middleware Registry', () => {
       consoleSpy.mockRestore();
     });
   });
+
+  describe("Registry with Group Config", () => {
+    it("should execute middlewares in sequence", async () => {
+      const middleware1: Middleware = async () => ({
+        continue: true,
+        data: { step1: 'completed' },
+      });
+
+      const middleware2: Middleware = async () => ({
+        continue: true,
+        data: { step2: 'completed' },
+      });
+
+      registerMiddleware('sequential-test', [middleware1, middleware2]);
+
+      const loader = createLoaderFromRegistry('sequential-test');
+      const result = await loader({
+        request: mockRequest,
+        params: { id: '123' },
+        context: {},
+      } as any);
+    });
+    it("should execute middlewares in parallel", async () => {
+      const startTimes: number[] = [];
+      const middleware1: Middleware = async () => {
+        startTimes.push(Date.now());
+        await new Promise(resolve => setTimeout(resolve, 50));
+        return { continue: true, data: { step1: 'completed' } };
+      };
+
+      const middleware2: Middleware = async () => {
+        startTimes.push(Date.now());
+        await new Promise(resolve => setTimeout(resolve, 50));
+        return { continue: true, data: { step2: 'completed' } };
+      };
+
+      registerMiddleware('parallel-test', [
+        {
+          parallel: [middleware1, middleware2]
+        }
+      ]);
+
+      const loader = createLoaderFromRegistry('parallel-test');
+
+      const startTime = Date.now();
+      const result = await loader({
+        request: mockRequest,
+        params: { id: '123' },
+        context: {},
+      } as any);
+      const totalTime = Date.now() - startTime;
+
+      // Should complete faster than sequential execution
+      expect(totalTime).toBeLessThan(80); // Less than 2 * 50ms
+      expect((result as any).middlewareData).toEqual({
+        step1: 'completed',
+        step2: 'completed',
+      });
+    });
+
+    it("it should throw error when multiple group middleware configs are combined", () => {
+      registerMiddleware('group1', [
+        {
+          parallel: []
+        }
+      ]);
+      registerMiddleware('group2', [
+        {
+          parallel: []
+        }
+      ]);
+      expect(() => {
+        createLoaderFromRegistry(['group1', 'group2']);
+      }).toThrow();
+    });
+    it("it should throw error when multiple middleware arrays are combined with group middleware config", () => {
+
+      const middleware1: Middleware = async () => ({
+        continue: true,
+        data: { step1: 'completed' },
+      });
+
+      const middleware2: Middleware = async () => ({
+        continue: true,
+        data: { step2: 'completed' },
+      });
+
+      registerMiddleware('group1', [
+        middleware1
+      ]);
+      registerMiddleware('group2', [
+        {
+          parallel: [middleware2]
+        }
+      ]);
+      expect(() => {
+        createLoaderFromRegistry(['group1', 'group2']);
+      }).toThrow();
+    });
+
+    it("when config, the paralel option should be ignored", async ()=>{
+      const startTimes: number[] = [];
+      const middleware1: Middleware = async () => {
+        startTimes.push(Date.now());
+        await new Promise(resolve => setTimeout(resolve, 50));
+        return {
+        continue: true,
+        data: { step1: 'completed' },
+      }};
+
+      const middleware2: Middleware = async () => {
+        startTimes.push(Date.now());
+        await new Promise(resolve => setTimeout(resolve, 50));
+        return {
+        continue: true,
+        data: { step2: 'completed' },
+      }};
+
+      const middleware3: Middleware = async () => {
+        startTimes.push(Date.now());
+        await new Promise(resolve => setTimeout(resolve, 50));
+        return {
+        continue: true,
+        data: { step3: 'completed' },
+      }};
+
+      registerMiddleware('group1', [
+        middleware1,
+        middleware3,
+        {
+          parallel: [middleware2]
+        }
+      ]);
+      const loader = createLoaderFromRegistry("group1",{parallel:true});
+      const startTime = Date.now();
+      const result = await loader({
+        request: mockRequest,
+        params: { id: '123' },
+        context: {},
+      } as any);
+      const totalTime = Date.now() - startTime;
+      expect(totalTime).toBeGreaterThanOrEqual(100);
+      expect((result as any).middlewareData).toEqual({
+        step1: 'completed',
+        step2: 'completed',
+        step3: 'completed',
+      });
+    })
+
+    it("it should reject on error for the config",async ()=>{
+      const middleware1: Middleware = async () => ({
+        continue: true,
+        data: { step1: 'completed' },
+      });
+
+      const middleware2: Middleware = async () => {
+        throw new Error("Middleware failed");
+      };
+
+      registerMiddleware('group1', [
+        {
+          parallel: [middleware1,middleware2]
+        }
+      ]);
+      const loader = createLoaderFromRegistry("group1",{rejectOnError:true});
+      await expect(loader({
+        request: mockRequest,
+        params: { id: '123' },
+        context: {},
+      } as any)).rejects.toThrow();
+    })
+
+    it("it should redirect on error for the config",async ()=>{
+      const middleware1: Middleware = async () => ({
+        continue: true,
+        data: { step1: 'completed' },
+      });
+
+      const middleware2: Middleware = async () => {
+        throw new Error("Middleware failed");
+      };
+
+      registerMiddleware('group1', [
+        {
+          parallel: [middleware1,middleware2]
+        }
+      ]);
+      const loader = createLoaderFromRegistry("group1",{redirect:"/error"});
+      const result = await loader({
+        request: mockRequest,
+        params: { id: '123' },
+        context: {},
+      } as any);
+      expect(result).toEqual({ type: 'redirect', url: '/error' });
+    })
+  })
 });

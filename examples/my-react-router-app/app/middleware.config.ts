@@ -1,13 +1,14 @@
-import { registerMiddleware, commonMiddlewares } from 'reactr-middleware';
-import './routes/products/products.middleware.config';
+import { registerMiddleware, commonMiddlewares } from '../../../src';
 export enum MiddlewareGroup {
   Public = 'public',
   Protected = 'protected',
   Admin = 'admin',
   Api = 'api',
   ProfilePage = 'profilePage',
-  ProfilePageParallel = 'profilePageParallel',
+  ProductPage = 'productPage',
 }
+
+export type MiddlewareConfig = keyof typeof MiddlewareGroup;
 
 // Register middleware groups centrally
 registerMiddleware(MiddlewareGroup.Public, [
@@ -17,7 +18,6 @@ registerMiddleware(MiddlewareGroup.Public, [
 
 registerMiddleware(MiddlewareGroup.Protected, [
   commonMiddlewares.logger({ includeBody: true }),
-  commonMiddlewares.requireAuth('/login'),
   commonMiddlewares.rateLimit(50, 60000),
 ]);
 
@@ -46,17 +46,29 @@ registerMiddleware(MiddlewareGroup.ProfilePage, [
   },
 ]);
 
-registerMiddleware(MiddlewareGroup.ProfilePageParallel, [
-  context => {
-    console.log('running profilePageParallel middleware1');
-    return { continue: true, data: { profilePageParallel: 'profilePageParallel' } };
+registerMiddleware(MiddlewareGroup.ProductPage,[
+  function(context){
+    console.log('running productPage1 middleware sequential');
+    return { continue: true, data: { productPage: 'productPage' } };
   },
-  context => {
-    console.log('running profilePageParallel middleware2');
-    return { continue: true, data: { profilePageParallel: 'profilePageParallel2' } };
-  },
-  context => {
-    console.log('running profilePageParallel middleware3');
-    return { continue: true, data: { profilePageParallel: 'profilePageParallel3' } };
-  },
-]);
+  {
+    parallel:[
+      function(context){
+        console.log('running productPage2 middleware1 parallel');
+        return { continue: true, data: context.data };
+      },
+      function(context){
+        const data = {...context.data, productPageParallel: 'productPageParallel'};
+        console.log('running productPage3 middleware2 parallel');
+        return { continue: true, data: data };
+      }
+    ],
+    sequential:[
+      function(context){
+        const data = {...context.data, productPageSequential: 'productPageSequential'};
+        console.log('running productPage4 middleware sequential');
+        return { continue: true, data: data };
+      }
+    ]
+  }
+])

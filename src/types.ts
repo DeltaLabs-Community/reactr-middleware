@@ -14,3 +14,11 @@ export interface MiddlewareResponse {
 }
 
 export type Middleware = (context: MiddlewareContext) => Promise<MiddlewareResponse> | MiddlewareResponse;
+
+export type MiddlewareConfigEntry = {
+  parallel?: Middleware[];
+  sequential?: Middleware[];
+}
+
+
+export type GroupMiddlewareConfig = (Middleware | MiddlewareConfigEntry)[]

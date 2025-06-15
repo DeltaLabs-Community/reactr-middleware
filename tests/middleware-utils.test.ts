@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   createLoader,
-  createLoaderFromRegistry,
-  registerMiddleware,
   commonMiddlewares,
+  registerMiddleware,
+  createLoaderFromRegistry,
   type Middleware,
   type MiddlewareContext,
-} from '../src/middleware-utils';
+} from '../src';
 import { redirect } from 'react-router';
 
 // Mock React Router
