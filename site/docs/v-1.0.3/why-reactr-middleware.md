@@ -135,5 +135,5 @@ Reactr Middleware is designed for **zero breaking changes**:
 4. **No rush** - migrate at your own pace
 
 ::: tip Ready to get started?
-Check out our [Getting Started Guide](/docs/v-1.0.0/getting-started) to add middleware to your first route in under 5 minutes.
+Check out our [Getting Started Guide](/docs/v-1.0.3/getting-started) to add middleware to your first route in under 5 minutes.
 :::
