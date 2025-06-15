@@ -5,19 +5,43 @@
   publish = "site/.vitepress/dist"
   command = "npm run docs:build"
 
-# These redirect rules ensure proper handling of clean URLs
+# Handle 404 errors by redirecting to 404.html
 [[redirects]]
   from = "/*"
+  to = "/404.html"
+  status = 404
+
+# Handle SPA routing for docs pages
+[[redirects]]
+  from = "/docs/*"
+  to = "/docs/:splat/index.html"
+  status = 200
+
+# Handle root path
+[[redirects]]
+  from = "/"
   to = "/index.html"
   status = 200
-  force = false
-  conditions = {Role = ["anonymous"]}
 
-# Ensure trailing slashes are handled correctly
-[[plugins]]
-  package = "@netlify/plugin-sitemap"
+# Handle other specific paths that should return HTML files
+[[redirects]]
+  from = "/*.html"
+  to = "/:splat.html"
+  status = 200
 
-[plugins.inputs]
-  buildDir = "site/.vitepress/dist"
-  prettyURLs = true
-  trailingSlash = false
+[build.processing]
+  skip_processing = false
+
+[build.processing.html]
+  pretty_urls = true
+
+[build.processing.css]
+  bundle = false
+  minify = false
+
+[build.processing.js]
+  bundle = false
+  minify = false
+
+[build.processing.images]
+  compress = false
