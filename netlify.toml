@@ -1,0 +1,15 @@
+# netlify.toml
+# This file configures Netlify redirects for manual uploads
+
+# These redirect rules ensure proper handling of clean URLs
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+
+# Handle 404s properly
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404

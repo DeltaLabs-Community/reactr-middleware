@@ -15,7 +15,7 @@ interface PageData {
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   buildEnd: async (config) => {
-    const hostname = 'https://reactrmiddleware.com'
+    const hostname = 'https://reactrmiddleware.com' // Make sure this matches your actual domain
     const sitemap = new SitemapStream({ hostname })
     
     const pages = await glob('**/*.md', {
@@ -75,7 +75,14 @@ export default defineConfig({
   title: "Reactr Middleware",
   description: "Middleware functionality for react router v7",
   base:"/",
-  cleanUrls:true,
+  cleanUrls: true,
+  head: [
+    ['meta', { name: 'robots', content: 'index, follow' }],
+    ['link', { rel: 'canonical', href: 'https://reactrmiddleware.com' }]
+  ],
+  sitemap: {
+    hostname: 'https://reactrmiddleware.com'
+  },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
