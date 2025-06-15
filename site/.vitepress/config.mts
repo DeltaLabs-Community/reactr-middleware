@@ -15,7 +15,7 @@ interface PageData {
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   buildEnd: async (config) => {
-    const hostname = 'https://reactrmiddleware.com' // Make sure this matches your actual domain
+    const hostname = 'https://reactrmiddleware.com/' // Make sure this matches your actual domain
     const sitemap = new SitemapStream({ hostname })
     
     const pages = await glob('**/*.md', {
@@ -78,10 +78,10 @@ export default defineConfig({
   cleanUrls: true,
   head: [
     ['meta', { name: 'robots', content: 'index, follow' }],
-    ['link', { rel: 'canonical', href: 'https://reactrmiddleware.com' }]
+    ['link', { rel: 'canonical', href: 'https://reactrmiddleware.com/' }]
   ],
   sitemap: {
-    hostname: 'https://reactrmiddleware.com'
+    hostname: 'https://reactrmiddleware.com/'
   },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
